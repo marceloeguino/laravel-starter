@@ -23,12 +23,12 @@ pipeline {
                     env.GIT_SHA = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
                     echo "Building Docker image with SHA: ${GIT_SHA}"
 
-                    sh """
+                    sh '''
                         docker build \
                           --build-arg APP_KEY=$APP_KEY \
                           -t ${REGISTRY}/${IMAGE_NAME}:${GIT_SHA} \
                           -t ${REGISTRY}/${IMAGE_NAME}:latest .
-                    """
+                    '''
                 }
             }
         }
