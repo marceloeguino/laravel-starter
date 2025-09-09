@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'docker-worker' }
 
     environment {
         DO_SSH = credentials('do-ssh-key')          // SSH private key for Droplet
