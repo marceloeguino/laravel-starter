@@ -36,12 +36,12 @@ pipeline {
         stage('Login & Push to DOCR') {
             steps {
                 script {
-                    sh "echo $DOCR_TOKEN | docker login registry.digitalocean.com -u doctl --password-stdin"
+                    sh 'echo $DOCR_TOKEN | docker login registry.digitalocean.com -u doctl --password-stdin'
 
-                    sh """
+                    sh '''
                         docker push ${REGISTRY}/${IMAGE_NAME}:${GIT_SHA} || true
                         docker push ${REGISTRY}/${IMAGE_NAME}:latest || true
-                    """
+                    '''
                 }
             }
         }
