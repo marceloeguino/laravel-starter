@@ -95,7 +95,7 @@ ENDSSH
                         docker ps --filter "name=hello" --format "table {{.Names}}\t{{.Status}}"
                         
                         # Healthcheck: call the Laravel health endpoint
-                        HEALTH_URL="http://localhost/health"
+                        HEALTH_URL="http://127.0.0.1/api/hello"
                         RESPONSE=\$(curl -s -o /dev/null -w "%{http_code}" \$HEALTH_URL)
                         
                         if [ "\$RESPONSE" != "200" ]; then
