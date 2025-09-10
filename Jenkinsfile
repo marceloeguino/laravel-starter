@@ -60,13 +60,6 @@ pipeline {
                         GIT_SHA="${GIT_SHA}"
                         DOCR_TOKEN="${DOCR_TOKEN}"
 
-                        # Print variables for debugging
-                        echo "REGISTRY: $REGISTRY"
-                        echo "IMAGE_NAME: $IMAGE_NAME"
-                        echo "GIT_SHA: $GIT_SHA"
-                        echo "APP_KEY: $APP_KEY"
-                        echo "BUILD_AT: \$(date +%FT%T%z)"
-
                         # Login to registry
                         echo "$DOCR_TOKEN" | docker login registry.digitalocean.com -u doctl --password-stdin
 
@@ -85,6 +78,35 @@ pipeline {
                             -e BUILD_AT="\$(date +%FT%T%z)" \
                             --restart unless-stopped \
                             "${REGISTRY}/${IMAGE_NAME}:${GIT_SHA}"
+                    ENDSSH
+                    """
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                script {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no -i \$DO_SSH chelo@192.168.31.200 bash -s << 'ENDSSH'
+                        set -eux
+
+                        # Check if container is running
+                        docker ps --filter "name=hello" --format "table {{.Names}}\t{{.Status}}"
+                        
+                        # Healthcheck: call the Laravel health endpoint
+                        HEALTH_URL="http://localhost/health"
+                        RESPONSE=\$(curl -s -o /dev/null -w "%{http_code}" \$HEALTH_URL)
+                        
+                        if [ "\$RESPONSE" != "200" ]; then
+                            echo "ERROR: Healthcheck failed, status code: \$RESPONSE"
+                            exit 1
+                        else
+                            echo "Healthcheck passed: \$RESPONSE"
+                        fi
+
+                        # Show last 50 logs
+                        docker logs --tail 50 hello
 ENDSSH
                     """
                 }
