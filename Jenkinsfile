@@ -65,7 +65,7 @@ pipeline {
                         echo "IMAGE_NAME: $IMAGE_NAME"
                         echo "GIT_SHA: $GIT_SHA"
                         echo "APP_KEY: $APP_KEY"
-                        echo "BUILD_AT: $(date +%FT%T%z)"
+                        echo "BUILD_AT: \$(date +%FT%T%z)"
 
                         # Login to registry
                         echo "$DOCR_TOKEN" | docker login registry.digitalocean.com -u doctl --password-stdin
