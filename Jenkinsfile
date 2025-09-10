@@ -71,7 +71,7 @@ pipeline {
                         docker rm hello || true
 
                         # Run container
-                        docker run -d --name hello -p 80:8000 \
+                        docker run -d --name hello -p 80:80 \
                             -e APP_ENV=production \
                             -e APP_KEY="$APP_KEY" \
                             -e BUILD_SHA="\${GIT_SHA}" \
