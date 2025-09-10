@@ -50,7 +50,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        ssh -o StrictHostKeyChecking=no -i \$DO_SSH chelo@192.168.31.200 << EOF
+                        ssh -o StrictHostKeyChecking=no -i \$DO_SSH chelo@192.168.31.200 << 'ENDSSH'
                             echo "$DOCR_TOKEN" | docker login registry.digitalocean.com -u doctl --password-stdin
                             docker pull ${REGISTRY}/${IMAGE_NAME}:${GIT_SHA}
                             docker stop hello || true
@@ -65,7 +65,7 @@ pipeline {
                                 -e BUILD_AT=\\\$(date +%FT%T%z) \\
                                 --restart unless-stopped \\
                                 ${REGISTRY}/${IMAGE_NAME}:${GIT_SHA}
-                        EOF
+ENDSSH
                     """
                 }
             }
