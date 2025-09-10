@@ -78,7 +78,7 @@ pipeline {
                             -e BUILD_AT="\$(date +%FT%T%z)" \
                             --restart unless-stopped \
                             "${REGISTRY}/${IMAGE_NAME}:${GIT_SHA}"
-                    ENDSSH
+ENDSSH
                     """
                 }
             }
