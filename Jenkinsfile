@@ -33,7 +33,7 @@ pipeline {
             }
         }
 
-        stage('Login & Push to DOCR') {
+        stage('Login & Push') {
             steps {
                 script {
                     sh 'echo $DOCR_TOKEN | docker login registry.digitalocean.com -u doctl --password-stdin'
@@ -84,7 +84,7 @@ ENDSSH
             }
         }
 
-        stage('Verify Deployment') {
+        stage('Healthcheck') {
             steps {
                 script {
                     sh """
