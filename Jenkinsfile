@@ -82,7 +82,7 @@ pipeline {
                             -e APP_ENV=production \
                             -e APP_KEY="$APP_KEY" \
                             -e BUILD_SHA="\${GIT_SHA}" \
-                            -e BUILD_AT="$(date +%FT%T%z)" \
+                            -e BUILD_AT="\$(date +%FT%T%z)" \
                             --restart unless-stopped \
                             "${REGISTRY}/${IMAGE_NAME}:${GIT_SHA}"
 ENDSSH
