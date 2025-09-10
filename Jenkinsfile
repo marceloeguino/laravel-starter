@@ -69,6 +69,8 @@ ENDSSH
                 }
             }
         }
+    }
+    
     post {
         always {
             sh 'docker logout registry.digitalocean.com || true'
