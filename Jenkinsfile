@@ -51,6 +51,13 @@ pipeline {
                 script {
                     sh """
                         ssh -o StrictHostKeyChecking=no -i \$DO_SSH chelo@192.168.31.200 << 'ENDSSH'
+                            echo "DOCR_TOKEN: \$DOCR_TOKEN"
+                            echo "REGISTRY: ${REGISTRY}"
+                            echo "IMAGE_NAME: ${IMAGE_NAME}"
+                            echo "GIT_SHA: ${GIT_SHA}"
+                            echo "APP_KEY: ${APP_KEY}"
+                            echo "BUILD_AT: \$(date +%FT%T%z)"
+                            
                             echo "\$DOCR_TOKEN" | docker login registry.digitalocean.com -u doctl --password-stdin
 
                             docker pull ${REGISTRY}/${IMAGE_NAME}:${GIT_SHA}
@@ -70,7 +77,7 @@ ENDSSH
             }
         }
     }
-    
+
     post {
         always {
             sh 'docker logout registry.digitalocean.com || true'
