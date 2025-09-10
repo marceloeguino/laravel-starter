@@ -51,7 +51,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no -i $DO_SSH chelo@192.168.131.200 << 'EOF'
+                        ssh -o StrictHostKeyChecking=no -i $DO_SSH chelo@192.168.31.200 << 'EOF'
                             docker pull ${REGISTRY}/${IMAGE_NAME}:${GIT_SHA}
                             docker stop hello || true
                             docker rm hello || true
