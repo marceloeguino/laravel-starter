@@ -50,7 +50,7 @@ pipeline {
         stage('Deploy to Droplet') {
             steps {
                 script {
-                    sh '''
+                    sh """
                         ssh -o StrictHostKeyChecking=no -i $DO_SSH chelo@192.168.31.200 << 'EOF'
                             docker pull ${REGISTRY}/${IMAGE_NAME}:${GIT_SHA}
                             docker stop hello || true
@@ -63,7 +63,7 @@ pipeline {
                                 --restart unless-stopped \
                                 ${REGISTRY}/${IMAGE_NAME}:${GIT_SHA}
                         EOF
-                    '''
+                    """
                 }
             }
         }
