@@ -119,6 +119,12 @@ def deployToDroplet(sha) {
         ssh -o StrictHostKeyChecking=no -i \$DO_SSH ${SSH_USER}@${SSH_HOST} bash -s << 'ENDSSH'
         set -eux
 
+        APP_KEY="${APP_KEY}"
+        REGISTRY="${REGISTRY}"
+        IMAGE_NAME="${IMAGE_NAME}"
+        DOCR_TOKEN="${DOCR_TOKEN}"
+        GIT_SHA="${sha}"
+
         # Login to registry
         echo "\$DOCR_TOKEN" | docker login registry.digitalocean.com -u doctl --password-stdin
 
