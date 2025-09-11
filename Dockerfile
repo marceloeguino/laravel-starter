@@ -40,13 +40,8 @@ RUN apk add --no-cache nginx curl
 
 # Create necessary directories for the app and nginx, set ownership
 RUN mkdir -p /var/www/html/public \
-    && mkdir -p /home/appuser/nginx/tmp/client_body \
-               /home/appuser/nginx/tmp/proxy \
-               /home/appuser/nginx/tmp/fastcgi \
-               /home/appuser/nginx/tmp/uwsgi \
-               /home/appuser/nginx/tmp/scgi \
-               /home/appuser/nginx/logs \
-    && chown -R appuser:appuser /var/www/html /home/appuser/nginx \
+    && mkdir -p /var/lib/nginx/logs \
+    && chown -R appuser:appuser /var/www/html /home/appuser/nginx /var/lib/nginx \
     && mkdir -p /etc/nginx
 
 WORKDIR /var/www/html
