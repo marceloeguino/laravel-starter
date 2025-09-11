@@ -142,7 +142,7 @@ def deployToDroplet(sha) {
         APP_KEY="${APP_KEY}"
         REGISTRY="${REGISTRY}"
         IMAGE_NAME="${IMAGE_NAME}"
-        DOCR_TOKEN="${DOCR_TOKEN}"
+        DOCR_TOKEN='${DOCR_TOKEN}'
         GIT_SHA="${sha}"
 
         # Login to registry
