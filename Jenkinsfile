@@ -94,9 +94,6 @@ pipeline {
                         else
                             echo "Healthcheck passed: \$RESPONSE"
                         fi
-
-                        # Show last 50 logs
-                        docker logs --tail 50 hello
 ENDSSH
                     """
                 }
