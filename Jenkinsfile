@@ -11,8 +11,8 @@ pipeline {
         APP_KEY    = credentials('laravel-app-key')     // Laravel APP_KEY
         REGISTRY   = "registry.digitalocean.com/laravel-challenge"
         IMAGE_NAME = "hello-laravel"
-        SSH_USER   = "chelo"
-        SSH_HOST   = "192.168.31.200"
+        SSH_USER   = "laravel"
+        SSH_HOST   = "10.100.0.2"
     }
 
     stages {
