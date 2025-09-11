@@ -129,7 +129,7 @@ Ship a Laravel 11 Hello World API to production as a single Docker container on 
 
 ### 4. Architecture
 
-#### Workflow Overview:
+#### Workflow Overview
 
 1. Code is stored in GitHub.
 2. Jenkins checks out code, builds Docker image.
@@ -175,7 +175,7 @@ Stages:
 2. **Build** Image → tag with ${GIT_SHA} and latest.
 3. **Login & Push** → authenticate and push image to registry.
 4. **Deploy** → SSH into Droplet, pull image, stop & remove old container, run new container.
-5. **Healthcheck** → check /api/hello returns 200 and show last 50 logs.
+5. **Healthcheck** → check /api/hello returns 200.
 
 Deploy command:
 
@@ -189,7 +189,28 @@ docker run -d --name hello -p 80:80 \
             "${REGISTRY}/${IMAGE_NAME}:${GIT_SHA}"
 ```
 
-C. Rollback
+C. Healthcheck
+
+The container has a Docker HEALTHCHECK that calls GET /api/hello.
+
+- You can verify health with:
+
+`docker ps --filter "name=hello" --format "table {{.Names}}\t{{.Status}}"`
+
+D. Logging
+
+Nginx access/error logs are redirected to stdout/stderr.
+
+- Laravel logs are redirected to stderr (LOG_CHANNEL=stderr).
+- You can see all logs with:
+
+`docker logs -f hello`
+
+Laravel logs are redirected to stderr so they’re visible via docker logs.
+
+- LOG_CHANNEL=stderr
+
+E. Rollback
 
 - Pipeline accepts a parameter ROLLBACK_SHA.
 - If supplied, pipeline skips build/push and redeploys the specified image SHA.
