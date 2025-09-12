@@ -332,4 +332,4 @@ To simplify management, a Makefile is provided.
   - Jenkinsfile (Declarative pipeline with rollback support)
   - Makefile (Jenkins infra management)
   - README.md (This documentation)
-  - [Video with the explanation of the challenge]([https://](https://drive.google.com/file/d/1872B87g6TH7UQSZdV-yCnuxTIW5GiR7A/view?usp=sharing))
+  - [Video explaining the challenge](https://drive.google.com/file/d/1872B87g6TH7UQSZdV-yCnuxTIW5GiR7A/view?usp=sharing)
