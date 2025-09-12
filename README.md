@@ -118,14 +118,14 @@ Ship a Laravel 11 Hello World API to production as a single Docker container on 
 
 - Endpoint: GET /api/hello
 - Response: JSON payload with message, status, and timestamp.
-- Stack: PHP 8.2+, Laravel 11, Nginx, PHP-FPM
+- Stack: PHP 8.2+, Laravel 12, Nginx, PHP-FPM
 
 ### 3. Constraints
 
 - Single container only.
 - No database or sidecars.
 - No secrets committed to Git.
-- Must run as non-root.
+- Run as non-root.
 
 ### 4. Architecture
 
@@ -135,7 +135,7 @@ Ship a Laravel 11 Hello World API to production as a single Docker container on 
 2. Jenkins checks out code, builds Docker image.
 3. Image is tagged with both :git-sha and :latest.
 4. Image is pushed to DigitalOcean Container Registry (DOCR).
-5. Jenkins connects via SSH to the Droplet.
+5. Jenkins connects via SSH to the Laravel Droplet.
 6. Droplet pulls the new image, replaces the running container.
 7. Container runs Laravel, served via Nginx on port 80.
 
@@ -145,27 +145,52 @@ Here an image of the Build History in Jenkins:
 
 ![Jenkins Build History - Stage View](./images/jenkins-stage-view.png)
 
-### 5. Prerequisites
+### 5. Environment
 
-- **Droplet:** Ubuntu 22.04+ with Docker & UFW configured.
-- **Registry:** DigitalOcean Container Registry (DOCR) or Docker Hub.
+- **Droplets (Jenkins and Laravel):** Ubuntu 24.04 LTS with Docker & UFW configured.
+- **Registry:** DigitalOcean Container Registry (DOCR) was used for the challenge.
 - **Jenkins:**
-  - Docker CLI installed on agent.
-  - Credentials configured:
-    - docr-token → DOCR token
-    - do-ssh-key → SSH private key for Droplet access
-    - laravel-app-key → Laravel APP_KEY
+  - **Master** and **Agent** are configured in the droplet.
+  - Credentials configured on **master**:
+    - `docr-token` → DOCR token
+    - `do-ssh-key` → SSH private key for Droplet access
+    - `laravel-app-key` → Laravel APP_KEY
+  - **Agent** has Docker CLI installed.
 
 ### 6. Implementation
 
 A. Containerization
 
+### Jenkins Setup
+
+To support CI/CD, Jenkins was containerized and deployed in the same droplet.  
+Both **master** and **agent** run as Docker containers, with persistent volumes and a `Makefile` to simplify management.
+
+#### Architecture
+
+- **Droplets (Jenkins and Laravel):** Ubuntu 24.04 LTS with Docker & UFW configured.  
+- **Registry:** DigitalOcean Container Registry (DOCR).  
+- **Jenkins Master:**
+  - Runs in a Docker container on the droplet (started via `master.sh`).  
+  - Stores persistent data in `jenkins_home/`.  
+  - Configured with credentials:
+    - `docr-token` → DOCR token  
+    - `do-ssh-key` → SSH private key for droplet access  
+    - `laravel-app-key` → Laravel APP_KEY  
+- **Jenkins Agent:**
+  - Runs in a separate container built from a custom **Dockerfile**.  
+  - Has Docker CLI installed and is connected to the host Docker socket (`/var/run/docker.sock`) to build and push images.  
+  - Registered with the master using JNLP.  
+- **Makefile** is used to build, start, stop, and restart both master and agent containers.
+
+### Laravel Endpoint
+
 - **Multi-stage Dockerfile:**
   - **Builder stage:** installs Composer deps, caches vendor.
-  - **Runtime stage:** installs PHP-FPM + Nginx, runs as non-root user appuser.
-- Nginx serves Laravel from `/var/www/html/public`.
-- Healthcheck defined: curl -f <http://localhost/api/hello>.
-- Exposes port 80.
+  - **Runtime stage:** installs PHP-FPM + Nginx, runs as non-root user **(appuser)**.
+- Nginx serves Laravel from `/var/www/html/public`
+- Healthcheck defined: curl -f <http://localhost/api/hello>
+- Exposes port 80
 
 B. Jenkins Pipeline
 
@@ -173,8 +198,8 @@ Stages:
 
 1. **Checkout** → pull code from Git.
 2. **Build** Image → tag with ${GIT_SHA} and latest.
-3. **Login & Push** → authenticate and push image to registry.
-4. **Deploy** → SSH into Droplet, pull image, stop & remove old container, run new container.
+3. **Login & Push** → authenticate and push image to DOCR registry.
+4. **Deploy** → SSH into Laravel Droplet, pull image, stop & remove old container, run new container.
 5. **Healthcheck** → check /api/hello returns 200.
 
 Deploy command:
@@ -183,6 +208,7 @@ Deploy command:
 docker run -d --name hello -p 80:80 \
             -e APP_ENV=production \
             -e APP_KEY="$APP_KEY" \
+            -e LOG_CHANNEL=stderr \
             -e BUILD_SHA="$GIT_SHA" \
             -e BUILD_AT="$(date +%FT%T%z)" \
             --restart unless-stopped \
@@ -195,20 +221,19 @@ The container has a Docker HEALTHCHECK that calls GET /api/hello.
 
 - You can verify health with:
 
-`docker ps --filter "name=hello" --format "table {{.Names}}\t{{.Status}}"`
+```bash
+docker ps --filter "name=hello" --format "table {{.Names}}\t{{.Status}}"
+```
 
 D. Logging
 
-Nginx access/error logs are redirected to stdout/stderr.
-
+- Nginx access/error logs are redirected to stdout/stderr.
 - Laravel logs are redirected to stderr (LOG_CHANNEL=stderr).
 - You can see all logs with:
 
-`docker logs -f hello`
-
-Laravel logs are redirected to stderr so they’re visible via docker logs.
-
-- LOG_CHANNEL=stderr
+```bash
+docker logs -f hello
+```
 
 E. Rollback
 
@@ -219,11 +244,11 @@ E. Rollback
 ### 7. Security Hardening
 
 - Container runs as non-root user (appuser).
-- APP_KEY and other secrets injected via Jenkins credentials, never stored in Git.
+- APP_KEY and other secrets are injected via Jenkins credentials, never stored in Git.
 - Droplet secured with:
-  - SSH key authentication only, root login disabled.
-  - UFW firewall open only for ports 22, 80, 443.
-  - Docker container runs with --restart unless-stopped for resilience.
+  - SSH key authentication only, root login and password authentication are disabled.
+  - UFW firewall open only for ports 22, 80, 443, and 50000 on Jenkins droplet.
+  - Docker containers runs with --restart unless-stopped for resilience.
 
 ### 8. Deploy & Rollback Instructions
 
@@ -307,4 +332,4 @@ To simplify management, a Makefile is provided.
   - Jenkinsfile (Declarative pipeline with rollback support)
   - Makefile (Jenkins infra management)
   - README.md (This documentation)
-- **Optional:** The link for the video is: []
+  - [Video with the explanation of the challenge]([https://](https://drive.google.com/file/d/1872B87g6TH7UQSZdV-yCnuxTIW5GiR7A/view?usp=sharing))
