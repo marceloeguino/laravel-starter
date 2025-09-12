@@ -14,7 +14,7 @@ class HelloController extends Controller
     public function hello()
     {
         return response()->json([
-            'message' => 'Hello World from Marcelo Eguino!',
+            'message' => 'Hello World!',
             'status' => 'success',
             'timestamp' => now()->toISOString()
         ]);
