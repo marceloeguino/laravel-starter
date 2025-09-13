@@ -183,6 +183,16 @@ Both **master** and **agent** run as Docker containers, with persistent volumes 
   - Registered with the master using JNLP.  
 - **Makefile** is used to build, start, stop, and restart both master and agent containers.
 
+### Accessing Jenkins
+
+Jenkins is running on the dedicated Jenkins Droplet.
+
+- **URL:** `http://<jenkins-droplet-ip>:8080`
+- **Credentials:** Provided separately in the challenge handoff (not stored in the repository).
+
+> 🔒 Note: Jenkins is exposed directly on port **8080** of the droplet.  
+> For production environments, it is recommended to run Jenkins behind a reverse proxy (e.g., Nginx) with SSL termination on port 80/443 for better security.
+
 ### Laravel Endpoint
 
 - **Multi-stage Dockerfile:**
