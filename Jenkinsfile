@@ -161,6 +161,7 @@ def deployToDroplet(sha) {
             -e APP_KEY="\$APP_KEY" \\
             -e LOG_CHANNEL=stderr \\
             -e BUILD_SHA="\${GIT_SHA}" \\
+            -e APP_URL=http://localhost \\
             -e BUILD_AT="\$(date +%FT%T%z)" \\
             --restart unless-stopped \\
             "\${REGISTRY}/\${IMAGE_NAME}:\${GIT_SHA}"
