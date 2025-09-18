@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 # Install Composer (PHP dependency manager)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /app
+WORKDIR /var/www/html
 
 # Copy composer files for dependency caching
 COPY composer.json composer.lock ./
@@ -28,9 +28,9 @@ COPY . .
 RUN [ -f .env ] || cp .env.example .env
 
 # Generate Laravel application key
-RUN php artisan config:clear
-RUN php artisan config:cache
-RUN php artisan key:generate
+RUN php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
 
 # Run Laravel package discovery (required after copying artisan)
 RUN php artisan package:discover --ansi
@@ -55,7 +55,14 @@ RUN mkdir -p /var/www/html/public \
 WORKDIR /var/www/html
 
 # Copy built application from builder stage, set ownership to appuser
-COPY --from=builder --chown=appuser:appuser /app /var/www/html
+COPY --from=builder --chown=appuser:appuser /var/www/html /var/www/html
+
+# Create storage and cache directories
+RUN mkdir -p /var/www/html/storage/framework/views \
+    && mkdir -p /var/www/html/storage/framework/cache \
+    && mkdir -p /var/www/html/storage/logs \
+    && mkdir -p /var/www/html/bootstrap/cache \
+    && chown -R appuser:appuser /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Copy minimal nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
