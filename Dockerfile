@@ -76,5 +76,7 @@ EXPOSE 80
 # Define healthcheck for Docker (checks Laravel endpoint)
 HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost/api/hello || exit 1
 
-# Start php-fpm and nginx in the foreground
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["sh", "-c", "php-fpm -D && nginx -c /etc/nginx/nginx.conf -g 'daemon off;'"]
