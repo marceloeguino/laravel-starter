@@ -6,23 +6,8 @@ FROM php:8.2-cli AS builder
 # Install required extensions and tools
 RUN apt-get update && apt-get install -y \
     git unzip curl libzip-dev libxml2-dev \
-    && docker-php-ext-install zip \
+    && docker-php-ext-install zip openssl \
     && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions
-RUN docker-php-ext-install \
-    ctype \
-    dom \
-    fileinfo \
-    filter \
-    hash \
-    mbstring \
-    openssl \
-    pdo \
-    session \
-    tokenizer \
-    xml \
-    zip
 
 # Install Composer (PHP dependency manager)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
