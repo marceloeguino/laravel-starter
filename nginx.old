@@ -1,0 +1,61 @@
+# Set the user to run nginx worker processes (non-root for security)
+# user  appuser;
+
+# Automatically set the number of worker processes based on CPU cores
+worker_processes  auto;
+
+# Log errors to stderr at notice level
+error_log  /dev/stderr notice;
+
+# Store the nginx process ID in a temporary location (no root required)
+pid        /tmp/nginx.pid;
+
+events {
+    # Maximum number of simultaneous connections per worker
+    worker_connections 1024;
+}
+
+http {
+    # Include MIME types for proper Content-Type headers
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    # Log access to stdout and errors to stderr
+    access_log  /dev/stdout;
+    error_log   /dev/stderr notice;
+
+    # Enable efficient file transfers
+    sendfile        on;
+    # Keep connections alive for 65 seconds
+    keepalive_timeout  65;
+
+    server {
+        # Listen on port 80 for HTTP requests
+        listen 80;
+        # Accept all hostnames
+        server_name _;
+
+        # Set the web root to Laravel's public directory
+        root /var/www/html/public;
+        # Default index files
+        index index.php index.html;
+
+        # Main location block: try to serve static files, fallback to index.php
+        location / {
+            try_files $uri $uri/ /index.php?$query_string;
+        }
+
+        # PHP file handling: pass requests to PHP-FPM
+        location ~ \.php$ {
+            include fastcgi_params;
+            fastcgi_pass 127.0.0.1:9000;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        }
+
+        # Deny access to .ht* files (e.g., .htaccess)
+        location ~ /\.ht {
+            deny all;
+        }
+    }
+}
