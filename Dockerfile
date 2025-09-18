@@ -67,6 +67,9 @@ RUN mkdir -p /var/www/html/storage/framework/views \
 # Copy minimal nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
+# Copy entrypoint script and set executable
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 # Switch to non-root user
 USER appuser
 
@@ -76,7 +79,5 @@ EXPOSE 80
 # Define healthcheck for Docker (checks Laravel endpoint)
 HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost/api/hello || exit 1
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["sh", "-c", "php-fpm -D && nginx -c /etc/nginx/nginx.conf -g 'daemon off;'"]
