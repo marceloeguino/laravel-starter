@@ -5,7 +5,7 @@ FROM php:8.2-cli AS builder
 
 # Install required extensions and tools
 RUN apt-get update && apt-get install -y \
-    git unzip curl libzip-dev \
+    git unzip curl libzip-dev libxml2-dev \
     && docker-php-ext-install zip \
     && rm -rf /var/lib/apt/lists/*
 
