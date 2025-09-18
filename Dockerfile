@@ -11,19 +11,18 @@ RUN apt-get update && apt-get install -y \
 
 # Install PHP extensions
 RUN docker-php-ext-install \
-    Ctype \
-    cURL \
-    DOM \
-    Fileinfo \
-    Filter \
-    Hash \
-    Mbstring \
-    OpenSSL \
-    PCRE \
-    PDO \
-    Session \
-    Tokenizer \
-    XML
+    ctype \
+    dom \
+    fileinfo \
+    filter \
+    hash \
+    mbstring \
+    openssl \
+    pdo \
+    session \
+    tokenizer \
+    xml \
+    zip
 
 # Install Composer (PHP dependency manager)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
