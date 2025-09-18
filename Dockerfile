@@ -6,7 +6,7 @@ FROM php:8.2-cli AS builder
 # Install required extensions and tools
 RUN apt-get update && apt-get install -y \
     git unzip curl libzip-dev libxml2-dev \
-    && docker-php-ext-install zip openssl \
+    && docker-php-ext-install zip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Composer (PHP dependency manager)
@@ -23,6 +23,14 @@ RUN composer install --no-dev --no-interaction --optimize-autoloader --no-script
 
 # Copy the rest of the application code
 COPY . .
+
+# Copy .env.example to .env if .env does not exist
+RUN [ -f .env ] || cp .env.example .env
+
+# Generate Laravel application key
+RUN php artisan config:clear
+RUN php artisan config:cache
+RUN php artisan key:generate
 
 # Run Laravel package discovery (required after copying artisan)
 RUN php artisan package:discover --ansi
